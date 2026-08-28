@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 128 128" role="img" aria-label="Calendar with privacy check">
+  <defs>
+    <linearGradient id="background" x1="18" y1="14" x2="110" y2="116" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2857D9"/>
+      <stop offset="1" stop-color="#12358F"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="116" height="116" rx="28" fill="url(#background)"/>
+  <rect x="25" y="28" width="78" height="76" rx="13" fill="#FFFFFF"/>
+  <path d="M25 48H103" stroke="#BFD0FF" stroke-width="8"/>
+  <path d="M43 22V37M85 22V37" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+  <path d="M43 74L57 88L86 59" fill="none" stroke="#188038" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+

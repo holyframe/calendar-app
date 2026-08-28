@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Private Calendar Availability</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <div id="signin-view" class="view hidden">
+    <div class="signin-box">
+      <img src="../icons/private-icon48.png" alt="" width="48" height="48">
+      <h1>Private Calendar Availability</h1>
+      <p class="tagline">Turn Google Calendar free/busy blocks into clean, shareable availability text.</p>
+
+      <div id="setup-notice" class="setup-notice hidden">
+        <strong>One-time OAuth setup required</strong>
+        <p>Your extension ID:</p>
+        <code id="extension-id"></code>
+        <p>Create a <b>Web application</b> OAuth client and authorize this exact redirect URI:</p>
+        <code id="redirect-uri"></code>
+        <p>Follow <b>README.md</b>, add the new client ID to <b>manifest.json</b>, then reload the extension. Never add the client secret.</p>
+        <a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noreferrer">Open Google Cloud OAuth clients</a>
+      </div>
+
+      <button id="signin-btn" class="primary">Sign in with Google</button>
+      <p class="privacy-summary">Requests calendar-list and free/busy access only. Event titles, descriptions, locations, and attendees are never downloaded.</p>
+      <div id="signin-error" class="error hidden" role="alert" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="main-view" class="view hidden">
+    <header class="app-header">
+      <div class="header-row">
+        <span class="app-name">My Availability</span>
+        <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Settings">&#9881;</button>
+      </div>
+      <div class="header-row account-row">
+        <span id="account-email"></span>
+        <a href="#" id="signout-link">Sign out</a>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Availability mode">
+      <button class="tab" role="tab" aria-controls="tab-pick" data-tab="pick">Pick Dates</button>
+      <button class="tab" role="tab" aria-controls="tab-range" data-tab="range">Date Range</button>
+    </nav>
+
+    <section id="tab-pick" class="tab-panel hidden" role="tabpanel">
+      <div class="cal-header">
+        <button id="cal-prev" class="icon-btn" title="Previous month" aria-label="Previous month">&#8249;</button>
+        <span id="cal-label" aria-live="polite"></span>
+        <button id="cal-next" class="icon-btn" title="Next month" aria-label="Next month">&#8250;</button>
+      </div>
+      <div id="cal-grid" aria-label="Choose dates"></div>
+      <div class="cal-meta">
+        <span id="sel-count">0 dates selected</span>
+        <a href="#" id="clear-all">Clear all</a>
+      </div>
+      <div class="field-row">
+        <label>Start time <input type="time" id="pick-start"></label>
+        <label>End time <input type="time" id="pick-end"></label>
+      </div>
+      <div id="pick-error" class="error hidden" role="alert" aria-live="polite"></div>
+      <button id="pick-find" class="primary">Find Availability</button>
+    </section>
+
+    <section id="tab-range" class="tab-panel hidden" role="tabpanel">
+      <div class="field-row">
+        <label>Start date <input type="date" id="range-start-date"></label>
+        <label>End date <input type="date" id="range-end-date"></label>
+      </div>
+      <div class="field-row">
+        <label>Start time <input type="time" id="range-start-time"></label>
+        <label>End time <input type="time" id="range-end-time"></label>
+      </div>
+      <div class="field-row">
+        <label>Minimum interval
+          <span class="min-int">
+            <input type="number" id="min-value" min="1" step="1">
+            <select id="min-unit">
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
+            </select>
+          </span>
+        </label>
+      </div>
+      <div id="range-error" class="error hidden" role="alert" aria-live="polite"></div>
+      <button id="range-find" class="primary">Find Availability</button>
+    </section>
+
+    <section id="output" class="hidden" aria-live="polite">
+      <div id="tz-line">Times displayed in <b id="tz-name"></b> time zone</div>
+      <textarea id="output-text" readonly rows="6" aria-label="Formatted availability"></textarea>
+      <div id="no-avail" class="empty hidden">No availability found in this window.</div>
+      <div class="output-actions">
+        <button id="copy-btn">Copy to Clipboard</button>
+        <span id="copied" class="copied hidden" role="status">Copied!</span>
+      </div>
+      <div class="convert-row">
+        <label for="convert-tz">Convert to timezone:</label>
+        <div id="convert-tz"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="settings-view" class="view hidden">
+    <header class="app-header">
+      <div class="header-row">
+        <button id="back-btn" class="icon-btn" title="Back" aria-label="Back">&#8592;</button>
+        <span class="app-name">Settings</span>
+        <span class="spacer"></span>
+      </div>
+    </header>
+
+    <h2>Accounts</h2>
+    <p class="hint">Free/busy blocks from every signed-in account are combined.</p>
+    <div id="account-list"></div>
+    <button id="add-account" class="secondary">+ Add Google account</button>
+
+    <h2>Calendars</h2>
+    <p class="hint">Checked calendars count as busy. No event details are downloaded.</p>
+    <div class="cal-links">
+      <a href="#" id="select-all">Select all</a>
+      <a href="#" id="deselect-all">Deselect all</a>
+    </div>
+    <div id="cal-list"><div class="loading">Loading&hellip;</div></div>
+    <div id="cal-error" class="error hidden" role="alert" aria-live="polite"></div>
+
+    <h2>Output format</h2>
+    <p class="hint">Choose how each line of availability is written.</p>
+    <div id="format-presets"></div>
+    <div id="custom-format" class="hidden">
+      <label class="stacked">Template
+        <input type="text" id="format-template" spellcheck="false">
+      </label>
+      <label class="stacked">Time style
+        <select id="format-time-style"></select>
+      </label>
+      <details class="token-help">
+        <summary>Template tokens</summary>
+        <table>
+          <tr><td><code>{Dow}</code></td><td>Thursday</td><td><code>{Dow3}</code></td><td>Thu</td></tr>
+          <tr><td><code>{Month}</code></td><td>July</td><td><code>{Mon3}</code></td><td>Jul</td></tr>
+          <tr><td><code>{M}</code></td><td>7</td><td><code>{MM}</code></td><td>07</td></tr>
+          <tr><td><code>{D}</code></td><td>9</td><td><code>{DD}</code></td><td>09</td></tr>
+          <tr><td><code>{YYYY}</code></td><td>2026</td><td><code>{YY}</code></td><td>26</td></tr>
+          <tr><td><code>{times}</code></td><td>1&ndash;3pm, 4:30&ndash;6pm</td><td><code>{tz}</code></td><td>EDT</td></tr>
+        </table>
+      </details>
+    </div>
+    <div class="format-preview-row">
+      <span class="hint">Preview:</span>
+      <code id="format-preview"></code>
+    </div>
+
+    <h2>My timezone</h2>
+    <p class="hint">Availability windows are calculated in this timezone.</p>
+    <div id="operating-tz"></div>
+
+    <h2>Privacy</h2>
+    <p class="hint privacy-settings">OAuth tokens are held only for the current browser session. Preferences and calendar selections stay on this device. Removing an account also removes its saved calendar selections.</p>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

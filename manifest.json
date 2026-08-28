@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Private Calendar Availability",
+  "short_name": "My Availability",
+  "version": "2.0.0",
+  "description": "Privately turns Google Calendar free/busy data into shareable availability text.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzxg/RWCtnmVnYv/u9o+TOH4r+KfmxZEEi2Ylrt4EzSWqH5+CXqJDcV6vOGAfrpV7tm78vv4sBJQ/Wg9AEey/8ZKrRhyCr7/W7GIF7lyE8katCzAvEdremwvUM/d1DG0SzxkgA9WEx+DVGdtLbeKjrspfTBGjF7l33Hk2+ZrlvG06rVcnUTPeQ31DEVM1rIp+tjvqKbHa0J+Ee7oHoR27KLktuRAWO//a71vKdzTXkoF/PJiW6FGtyc5TOvCIR3KWftVw87crp0cSru3REjpTRsuKPLQ5Y5j2qzcfelVwyIDL4rwvonDgDAepsJtHEkHtB2G7QKjRtXTfJCmIFmOMTQIDAQAB",
+  "action": {
+    "default_title": "Private Calendar Availability",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/private-icon16.png",
+      "48": "icons/private-icon48.png",
+      "128": "icons/private-icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/service_worker.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "icons/private-icon16.png",
+    "48": "icons/private-icon48.png",
+    "128": "icons/private-icon128.png"
+  },
+  "permissions": [
+    "identity",
+    "storage",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://www.googleapis.com/*",
+    "https://oauth2.googleapis.com/*"
+  ],
+  "oauth2": {
+    "client_id": "1087409152703-6vtfhgajg3uhgh4d87nto0q95t3tq8m6.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+      "https://www.googleapis.com/auth/calendar.events.freebusy",
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

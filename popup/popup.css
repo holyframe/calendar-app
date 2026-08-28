@@ -1,0 +1,674 @@
+:root {
+  --blue: #1a73e8;
+  --blue-dark: #1765c1;
+  --blue-light: #e8f0fe;
+  --text: #202124;
+  --text-dim: #5f6368;
+  --border: #dadce0;
+  --bg: #ffffff;
+  --error: #d93025;
+  --green: #188038;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 400px;
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.view {
+  padding: 12px 14px 16px;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 8px 0 4px;
+}
+
+h2 {
+  font-size: 14px;
+  margin: 18px 0 4px;
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.hint {
+  color: var(--text-dim);
+  margin: 0 0 8px;
+}
+
+.error {
+  color: var(--error);
+  margin: 8px 0;
+}
+
+.loading,
+.empty {
+  color: var(--text-dim);
+  padding: 10px 0;
+}
+
+/* ---------- Buttons ---------- */
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.primary {
+  display: block;
+  width: 100%;
+  padding: 9px 0;
+  margin-top: 10px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.primary:hover {
+  background: var(--blue-dark);
+}
+
+.primary:disabled {
+  background: var(--border);
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--text-dim);
+}
+
+.icon-btn:hover {
+  background: var(--blue-light);
+  color: var(--text);
+}
+
+/* ---------- Sign-in ---------- */
+
+.signin-box {
+  text-align: center;
+  padding: 28px 10px;
+}
+
+.tagline {
+  color: var(--text-dim);
+  margin: 0 0 18px;
+}
+
+.setup-notice {
+  text-align: left;
+  padding: 10px;
+  margin: 12px 0;
+  border: 1px solid #f6c344;
+  border-radius: 8px;
+  background: #fff8e1;
+}
+
+.setup-notice p {
+  margin: 6px 0;
+}
+
+#extension-id,
+#redirect-uri {
+  display: block;
+  padding: 6px;
+  overflow-wrap: anywhere;
+  border-radius: 4px;
+  background: #fff;
+  user-select: all;
+}
+
+.privacy-summary {
+  margin: 10px 4px 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  margin-bottom: 8px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.account-row {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.spacer {
+  width: 32px;
+}
+
+/* ---------- Tabs ---------- */
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+/* ---------- Calendar grid ---------- */
+
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+#cal-label {
+  font-weight: 600;
+}
+
+#cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  user-select: none;
+}
+
+.cal-dow {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 2px 0;
+}
+
+.cal-cell {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 7px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+}
+
+.cal-cell:hover:not(.disabled):not(.blank) {
+  background: var(--blue-light);
+}
+
+.cal-cell.blank {
+  cursor: default;
+}
+
+.cal-cell.disabled {
+  color: var(--border);
+  cursor: default;
+  background: transparent;
+}
+
+.cal-cell.today {
+  border-color: var(--blue);
+}
+
+.cal-cell.selected {
+  background: var(--blue);
+  color: #fff;
+}
+
+.cal-cell.selected:hover {
+  background: var(--blue-dark);
+}
+
+.cal-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0 4px;
+  color: var(--text-dim);
+}
+
+/* ---------- Form fields ---------- */
+
+.field-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.field-row label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+input[type="time"],
+input[type="date"],
+input[type="number"],
+select {
+  font: inherit;
+  color: var(--text);
+  padding: 5px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.min-int {
+  display: flex;
+  gap: 6px;
+}
+
+.min-int input {
+  width: 70px;
+}
+
+.min-int select {
+  flex: 1;
+}
+
+/* ---------- Output ---------- */
+
+#output {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+#tz-line {
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+#output-text {
+  width: 100%;
+  font: 12px/1.5 Consolas, Menlo, monospace;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  resize: vertical;
+  background: #f8f9fa;
+}
+
+.output-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+#copy-btn {
+  padding: 6px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+#copy-btn:hover {
+  background: var(--blue-light);
+}
+
+#copy-btn:disabled {
+  color: var(--text-dim);
+  cursor: default;
+  background: var(--bg);
+}
+
+.copied {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.copied.copy-error {
+  color: var(--error);
+}
+
+.convert-row {
+  margin-top: 12px;
+}
+
+.convert-row > label {
+  display: block;
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+/* ---------- Timezone dropdown ---------- */
+
+.tzdd {
+  position: relative;
+}
+
+.tzdd-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tzdd-toggle::after {
+  content: " \25BE";
+  color: var(--text-dim);
+}
+
+.tzdd-panel {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 4px);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+}
+
+#operating-tz .tzdd-panel {
+  bottom: auto;
+  top: calc(100% + 4px);
+}
+
+.tzdd-search {
+  width: 100%;
+  font: inherit;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.tzdd-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.tzdd-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  padding: 6px 8px 2px;
+}
+
+.tzdd-opt {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  background: transparent;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tzdd-opt:hover {
+  background: var(--blue-light);
+}
+
+.tzdd-opt.selected {
+  background: var(--blue);
+  color: #fff;
+}
+
+.tzdd-empty {
+  padding: 8px;
+  color: var(--text-dim);
+}
+
+/* ---------- Settings: accounts ---------- */
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 2px;
+}
+
+.account-row .name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.secondary {
+  display: block;
+  width: 100%;
+  padding: 7px 0;
+  margin-top: 6px;
+  background: var(--bg);
+  color: var(--blue);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.secondary:hover {
+  background: var(--blue-light);
+}
+
+.secondary:disabled {
+  color: var(--text-dim);
+  cursor: default;
+  background: var(--bg);
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Settings: output format ---------- */
+
+.format-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 2px;
+  cursor: pointer;
+}
+
+.format-option input {
+  margin-top: 2px;
+}
+
+.format-option span {
+  display: flex;
+  flex-direction: column;
+}
+
+.format-example {
+  color: var(--text-dim);
+  font: 11px/1.4 Consolas, Menlo, monospace;
+}
+
+.stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+#format-template {
+  font-family: Consolas, Menlo, monospace;
+}
+
+.token-help {
+  margin-top: 8px;
+  color: var(--text-dim);
+}
+
+.token-help summary {
+  cursor: pointer;
+}
+
+.token-help table {
+  margin-top: 4px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.token-help td {
+  padding: 2px 6px 2px 0;
+  font-size: 12px;
+}
+
+.token-help code {
+  background: var(--blue-light);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+.format-preview-row {
+  margin-top: 10px;
+  padding: 8px;
+  background: #f8f9fa;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.format-preview-row code {
+  display: block;
+  white-space: pre-wrap;
+  font: 12px/1.5 Consolas, Menlo, monospace;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+/* ---------- Settings: calendar list ---------- */
+
+.cal-group-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  padding: 8px 0 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.cal-links {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+
+.cal-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 2px;
+}
+
+.cal-row .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cal-row .name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.primary-label {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--blue-light);
+  color: var(--blue-dark);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.privacy-settings {
+  line-height: 1.45;
+}
