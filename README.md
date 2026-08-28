@@ -1,14 +1,15 @@
 # Private Calendar Availability
 
-A private Manifest V3 Chrome extension that converts Google Calendar free/busy blocks into copyable availability text.
+A private Manifest V3 Chrome extension that shows today’s schedule and converts Google Calendar free/busy blocks into copyable availability text.
 
 This is a clean, original private build. It does not use the Availical extension identity, OAuth client, branding, update channel, or Web Store metadata. Its newly generated public manifest key gives it the stable private extension ID `dcnikakndffhkejpelbgcdfjbmimaikm`. This public key is not an OAuth secret; no private signing key is stored.
 
 ## Privacy design
 
-- Requests only calendar-list metadata, free/busy blocks, and the signed-in email address.
-- Never calls the Google Calendar Events endpoint.
-- Never downloads event titles, descriptions, locations, attendees, or meeting links.
+- Requests calendar-list metadata, free/busy blocks, read-only event access, and the signed-in email address.
+- Downloads only event titles, descriptions, and start/end values when the **Today** schedule is opened.
+- Never downloads locations, attendees, meeting links, conferencing data, or attachments.
+- Keeps schedule data in memory only; it is never written to extension storage.
 - Keeps OAuth access tokens in `chrome.storage.session`, which is memory-backed and clears when Chrome exits.
 - Keeps account email addresses, preferences, and calendar selections in device-local extension storage, not Chrome Sync.
 - Keeps raw tokens and all Google API requests in the background service worker.
@@ -27,7 +28,7 @@ Google requires the OAuth client to belong to you. The included manifest deliber
 2. Turn on **Developer mode**.
 3. Click **Load unpacked**.
 4. Choose this project folder.
-5. Copy the extension ID from the extension card. The popup also displays it.
+5. Copy the extension ID from the extension card. The side panel also displays it.
 
 The included newly generated public manifest key keeps this ID stable even if the folder moves.
 
@@ -49,9 +50,16 @@ The included newly generated public manifest key keeps this ID stable even if th
 7. Add exactly these data-access scopes:
    - `https://www.googleapis.com/auth/calendar.calendarlist.readonly`
    - `https://www.googleapis.com/auth/calendar.events.freebusy`
+   - `https://www.googleapis.com/auth/calendar.events.readonly`
    - `https://www.googleapis.com/auth/userinfo.email`
 
 Do not add `calendar.readonly` or any write scope.
+
+When upgrading from an earlier free/busy-only version, add the new
+`calendar.events.readonly` scope in Google Auth Platform first. Then open
+**Settings**, click **+ Add Google account**, and select each already-connected
+account again. This refreshes its token while preserving saved calendar
+selections.
 
 ### 4. Create the OAuth client
 
@@ -85,7 +93,7 @@ The client ID identifies the OAuth application; it is public configuration, not 
 
 Open the extension and click **Sign in with Google**.
 
-Google may show an unverified-app warning for a private/testing OAuth project. Continue only when the developer/support email and project are yours and the consent screen lists only the three scopes above.
+Google may show an unverified-app warning for a private/testing OAuth project. Continue only when the developer/support email and project are yours and the consent screen lists only the four scopes above.
 
 [Google documents](https://support.google.com/cloud/answer/15549945?hl=en) that testing-mode authorizations expire after seven days. Once you have tested the extension, you can change your own OAuth app to **In production** for private use. It can remain unverified under [Google's personal-use allowance](https://support.google.com/cloud/answer/13464323?hl=en), but the warning and lifetime 100-user cap remain. Do not distribute it publicly without completing Google's verification process.
 
@@ -93,10 +101,12 @@ Every additional Google account must be included as a test user while the projec
 
 ## Using the extension
 
+- Click the extension’s toolbar icon to open its global side panel. The panel stays open while you switch tabs in the same Chrome window.
+- **Today:** use the date-card arrows to move one day at a time, view events from every readable calendar in your connected accounts using an adjustable whole-hour range bar (8am–8pm by default), click a meeting to read its description, then find free intervals for the displayed date in your configured timezone. Recently viewed schedules stay in a small memory-only cache while the side panel remains open; an uncached date, timezone, or hour range starts with a blank grid.
 - **Pick Dates:** select up to 31 individual dates, choose a time window, and find all free intervals.
 - **Date Range:** scan up to 92 days and filter out intervals shorter than your minimum duration.
 - **Settings → Accounts:** add or remove Google accounts.
-- **Settings → Calendars:** choose which calendars count as busy.
+- **Settings → Calendars:** choose which calendars count as busy in availability results. These selections do not filter the Today schedule.
 - **Settings → Output format:** select a preset or create a custom text template.
 - **Convert to timezone:** re-render the result without querying Google again.
 

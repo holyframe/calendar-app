@@ -27,23 +27,50 @@ test('manifest has its own stable identity and no Web Store update channel', asy
   assert.equal(manifest.content_scripts, undefined);
 });
 
-test('OAuth scopes are read-only and free/busy-specific', async () => {
+test('OAuth scopes are least-privilege and read-only', async () => {
   const manifest = JSON.parse(await readFile(manifestUrl, 'utf8'));
   assert.deepEqual(manifest.oauth2.scopes, [
     'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
     'https://www.googleapis.com/auth/calendar.events.freebusy',
+    'https://www.googleapis.com/auth/calendar.events.readonly',
     'https://www.googleapis.com/auth/userinfo.email',
   ]);
   assert.equal(
     manifest.oauth2.scopes.some((scope) => scope.endsWith('/auth/calendar.readonly')),
     false
   );
+  assert.equal(
+    manifest.oauth2.scopes.some((scope) =>
+      [
+        'https://www.googleapis.com/auth/calendar',
+        'https://www.googleapis.com/auth/calendar.events',
+      ].includes(scope)
+    ),
+    false
+  );
 });
 
-test('background gateway uses FreeBusy and never calls the Events endpoint', async () => {
+test('background gateway uses FreeBusy and a field-limited Events list', async () => {
   const source = await readFile(workerUrl, 'utf8');
   assert.match(source, /\/freeBusy/);
-  assert.doesNotMatch(source, /\/events(?:[\x60'"/?])/);
+  assert.match(source, /\/events/);
+  assert.match(source, /singleEvents', 'true'/);
+  assert.match(
+    source,
+    /items\(id,iCalUID,summary,description,start\(date,dateTime\),end\(date,dateTime\)\),nextPageToken/
+  );
+  assert.match(source, /GET_TODAY_SCHEDULE/);
   assert.doesNotMatch(source, /GET_TOKEN/);
   assert.match(source, /chrome\.storage\.session/);
+});
+
+test('Today reads all calendars while availability uses selected calendars', async () => {
+  const source = await readFile(workerUrl, 'utf8');
+  const scheduleStart = source.indexOf('async function fetchAccountSchedule');
+  const scheduleEnd = source.indexOf('async function handleGetBusy', scheduleStart);
+  const scheduleSource = source.slice(scheduleStart, scheduleEnd);
+
+  assert.match(scheduleSource, /fetchCalendarList\(token\)/);
+  assert.doesNotMatch(scheduleSource, /getCheckedCalendars/);
+  assert.match(source, /async function fetchAccountBusy[\s\S]+getCheckedCalendars/);
 });

@@ -4,13 +4,14 @@ import { access, readFile } from 'node:fs/promises';
 
 const project = new URL('../', import.meta.url);
 
-test('every popup DOM lookup resolves to exactly one element ID', async () => {
+test('every side-panel DOM lookup resolves to exactly one element ID', async () => {
   const html = await readFile(new URL('popup/popup.html', project), 'utf8');
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
-  assert.equal(new Set(ids).size, ids.length, 'popup contains duplicate IDs');
+  assert.equal(new Set(ids).size, ids.length, 'side panel contains duplicate IDs');
 
   for (const filename of [
     'popup/popup.js',
+    'popup/today.js',
     'popup/pick_dates.js',
     'popup/date_range.js',
     'popup/settings.js',
@@ -27,12 +28,27 @@ test('manifest-referenced extension assets exist', async () => {
     await readFile(new URL('manifest.json', project), 'utf8')
   );
   const paths = [
-    manifest.action.default_popup,
+    manifest.side_panel.default_path,
     manifest.background.service_worker,
     ...Object.values(manifest.action.default_icon),
     ...Object.values(manifest.icons),
   ];
   await Promise.all([...new Set(paths)].map((path) => access(new URL(path, project))));
+});
+
+test('toolbar action opens a global side panel', async () => {
+  const manifest = JSON.parse(
+    await readFile(new URL('manifest.json', project), 'utf8')
+  );
+  const worker = await readFile(
+    new URL('background/service_worker.js', project),
+    'utf8'
+  );
+
+  assert.equal(manifest.side_panel.default_path, 'popup/popup.html');
+  assert.ok(manifest.permissions.includes('sidePanel'));
+  assert.equal(manifest.action.default_popup, undefined);
+  assert.match(worker, /setPanelBehavior\(\{ openPanelOnActionClick: true \}\)/);
 });
 
 test('fresh installs default to the custom ordinal output format', async () => {
@@ -41,14 +57,35 @@ test('fresh installs default to the custom ordinal output format', async () => {
   assert.match(source, /outputPreset:\s*'custom'/);
   assert.match(source, /outputTemplate:\s*'\{Dow3\} \{Do\} : \{times\}'/);
   assert.match(source, /outputTimeStyle:\s*'spacedDots'/);
+  assert.match(source, /todayViewStart:\s*'08:00'/);
+  assert.match(source, /todayViewEnd:\s*'20:00'/);
 });
 
-test('runtime code has no inherited brand, broad scope, sync storage, or Events endpoint', async () => {
+test('today timeline uses an hourly range bar', async () => {
+  const html = await readFile(new URL('popup/popup.html', project), 'utf8');
+
+  assert.match(html, /type="range" id="today-view-start"[^>]+step="1"/);
+  assert.match(html, /type="range" id="today-view-end"[^>]+step="1"/);
+  assert.match(html, /id="today-view-range-output"/);
+});
+
+test('Today preserves its grid while schedule data refreshes', async () => {
+  const source = await readFile(new URL('popup/today.js', project), 'utf8');
+
+  assert.doesNotMatch(source, /Loading today’s schedule/);
+  assert.match(source, /renderedScheduleKey !== viewKey/);
+  assert.match(source, /renderSchedule\(cached\?\.events \|\| \[\], timeZone, dayWindow, viewWindow\)/);
+  assert.match(source, /setAttribute\('aria-busy', 'true'\)/);
+  assert.match(source, /scheduleCache\.get\(viewKey\)/);
+});
+
+test('runtime code has no inherited brand, broad scope, or sync storage', async () => {
   const paths = [
     'manifest.json',
     'background/service_worker.js',
     'popup/popup.html',
     'popup/popup.js',
+    'popup/today.js',
     'popup/pick_dates.js',
     'popup/date_range.js',
     'popup/settings.js',
@@ -62,5 +99,5 @@ test('runtime code has no inherited brand, broad scope, sync storage, or Events 
   assert.doesNotMatch(runtime, /977927049542-/);
   assert.doesNotMatch(runtime, /chrome\.storage\.sync/);
   assert.doesNotMatch(runtime, /\/auth\/calendar\.readonly/);
-  assert.doesNotMatch(runtime, /\/calendars\/[^\s]+\/events/);
+  assert.doesNotMatch(runtime, /\/auth\/calendar(?:\.events)?["']/);
 });

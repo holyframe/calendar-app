@@ -1,5 +1,6 @@
 // Popup entry point: auth state, navigation, preferences, and shared output.
 
+import { initToday } from './today.js';
 import { initPickDates } from './pick_dates.js';
 import { initDateRange } from './date_range.js';
 import { initSettings } from './settings.js';
@@ -46,6 +47,8 @@ const PREF_DEFAULTS = {
   lastTab: 'pick',
   timeStart: '09:00',
   timeEnd: '17:00',
+  todayViewStart: '08:00',
+  todayViewEnd: '20:00',
   minIntervalValue: 30,
   minIntervalUnit: 'minutes',
   outputPreset: 'custom',
@@ -170,14 +173,16 @@ function initOutput(initialTimeZone) {
 }
 
 function selectTab(name) {
-  const selected = name === 'range' ? 'range' : 'pick';
+  const tabNames = ['today', 'pick', 'range'];
+  const selected = tabNames.includes(name) ? name : 'pick';
   for (const tab of document.querySelectorAll('.tab')) {
     const active = tab.dataset.tab === selected;
     tab.classList.toggle('active', active);
     tab.setAttribute('aria-selected', String(active));
   }
-  $('tab-pick').classList.toggle('hidden', selected !== 'pick');
-  $('tab-range').classList.toggle('hidden', selected !== 'range');
+  for (const tabName of tabNames) {
+    $('tab-' + tabName).classList.toggle('hidden', selected !== tabName);
+  }
 }
 
 function initTabs(lastTab) {
@@ -266,6 +271,7 @@ async function init() {
     setAccounts,
   };
 
+  initToday(context);
   initPickDates(context);
   initDateRange(context);
   initSettings(context, {

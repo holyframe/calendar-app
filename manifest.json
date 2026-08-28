@@ -2,12 +2,12 @@
   "manifest_version": 3,
   "name": "Private Calendar Availability",
   "short_name": "My Availability",
-  "version": "2.0.0",
-  "description": "Privately turns Google Calendar free/busy data into shareable availability text.",
+  "version": "2.2.0",
+  "minimum_chrome_version": "114",
+  "description": "Shows today's Google Calendar schedule and turns free/busy data into shareable availability text.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzxg/RWCtnmVnYv/u9o+TOH4r+KfmxZEEi2Ylrt4EzSWqH5+CXqJDcV6vOGAfrpV7tm78vv4sBJQ/Wg9AEey/8ZKrRhyCr7/W7GIF7lyE8katCzAvEdremwvUM/d1DG0SzxkgA9WEx+DVGdtLbeKjrspfTBGjF7l33Hk2+ZrlvG06rVcnUTPeQ31DEVM1rIp+tjvqKbHa0J+Ee7oHoR27KLktuRAWO//a71vKdzTXkoF/PJiW6FGtyc5TOvCIR3KWftVw87crp0cSru3REjpTRsuKPLQ5Y5j2qzcfelVwyIDL4rwvonDgDAepsJtHEkHtB2G7QKjRtXTfJCmIFmOMTQIDAQAB",
   "action": {
-    "default_title": "Private Calendar Availability",
-    "default_popup": "popup/popup.html",
+    "default_title": "Open My Availability",
     "default_icon": {
       "16": "icons/private-icon16.png",
       "48": "icons/private-icon48.png",
@@ -18,6 +18,9 @@
     "service_worker": "background/service_worker.js",
     "type": "module"
   },
+  "side_panel": {
+    "default_path": "popup/popup.html"
+  },
   "icons": {
     "16": "icons/private-icon16.png",
     "48": "icons/private-icon48.png",
@@ -26,7 +29,8 @@
   "permissions": [
     "identity",
     "storage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://www.googleapis.com/*",
@@ -37,6 +41,7 @@
     "scopes": [
       "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
       "https://www.googleapis.com/auth/calendar.events.freebusy",
+      "https://www.googleapis.com/auth/calendar.events.readonly",
       "https://www.googleapis.com/auth/userinfo.email"
     ]
   },

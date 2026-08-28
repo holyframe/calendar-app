@@ -25,7 +25,7 @@
       </div>
 
       <button id="signin-btn" class="primary">Sign in with Google</button>
-      <p class="privacy-summary">Requests calendar-list and free/busy access only. Event titles, descriptions, locations, and attendees are never downloaded.</p>
+      <p class="privacy-summary">Requests calendar-list, free/busy, and read-only event access. Today loads event titles, times, and descriptions.</p>
       <div id="signin-error" class="error hidden" role="alert" aria-live="polite"></div>
     </div>
   </div>
@@ -43,9 +43,69 @@
     </header>
 
     <nav class="tabs" role="tablist" aria-label="Availability mode">
+      <button class="tab" role="tab" aria-controls="tab-today" data-tab="today">Today</button>
       <button class="tab" role="tab" aria-controls="tab-pick" data-tab="pick">Pick Dates</button>
       <button class="tab" role="tab" aria-controls="tab-range" data-tab="range">Date Range</button>
     </nav>
+
+    <section id="tab-today" class="tab-panel hidden" role="tabpanel">
+      <div class="today-card">
+        <button id="today-prev-day" class="today-day-nav" type="button" title="Previous day" aria-label="Previous day">&#8249;</button>
+        <div class="today-card-date">
+          <span id="today-date-label">Today</span>
+          <strong id="today-date" aria-live="polite"></strong>
+        </div>
+        <button id="today-next-day" class="today-day-nav" type="button" title="Next day" aria-label="Next day">&#8250;</button>
+      </div>
+      <p class="hint">Date based on your timezone in Settings.</p>
+      <div class="today-section-header">
+        <div class="today-section-title">
+          <h2>Schedule</h2>
+          <span id="today-schedule-zone"></span>
+        </div>
+        <button id="today-refresh" class="link-button" type="button">Refresh</button>
+      </div>
+      <div class="timeline-range" role="group" aria-labelledby="today-view-range-label">
+        <div class="timeline-range-header">
+          <span id="today-view-range-label">Visible hours</span>
+          <output id="today-view-range-output" for="today-view-start today-view-end">8 AM – 8 PM</output>
+        </div>
+        <div id="today-view-range-bar" class="timeline-range-bar">
+          <span class="timeline-range-track" aria-hidden="true"></span>
+          <input type="range" id="today-view-start" min="0" max="23" step="1" value="8" aria-label="Start hour">
+          <input type="range" id="today-view-end" min="1" max="24" step="1" value="20" aria-label="End hour">
+        </div>
+        <div class="timeline-range-scale" aria-hidden="true">
+          <span>12 AM</span>
+          <span>12 PM</span>
+          <span>12 AM</span>
+        </div>
+      </div>
+      <div id="today-schedule" class="schedule-list" role="region" aria-label="Today’s schedule">
+        <div class="empty">Open Today to load your schedule.</div>
+      </div>
+      <section id="today-event-details" class="today-event-details hidden" tabindex="-1" aria-labelledby="today-event-details-title">
+        <div class="today-event-details-header">
+          <div>
+            <h3 id="today-event-details-title"></h3>
+            <p id="today-event-details-meta"></p>
+          </div>
+          <button id="today-event-details-close" class="today-event-details-close" type="button" aria-label="Close meeting details">&#215;</button>
+        </div>
+        <div class="today-event-description">
+          <strong>Description</strong>
+          <p id="today-event-details-description"></p>
+        </div>
+      </section>
+      <p id="today-schedule-note" class="hint hidden"></p>
+      <h2 class="today-availability-title">Availability</h2>
+      <div class="field-row">
+        <label>Start time <input type="time" id="today-start"></label>
+        <label>End time <input type="time" id="today-end"></label>
+      </div>
+      <div id="today-error" class="error hidden" role="alert" aria-live="polite"></div>
+      <button id="today-find" class="primary">Find This Day’s Availability</button>
+    </section>
 
     <section id="tab-pick" class="tab-panel hidden" role="tabpanel">
       <div class="cal-header">
@@ -120,7 +180,7 @@
     <button id="add-account" class="secondary">+ Add Google account</button>
 
     <h2>Calendars</h2>
-    <p class="hint">Checked calendars count as busy. No event details are downloaded.</p>
+    <p class="hint">Checked calendars count as busy in availability results. Today always shows every readable calendar.</p>
     <div class="cal-links">
       <a href="#" id="select-all">Select all</a>
       <a href="#" id="deselect-all">Deselect all</a>
@@ -161,7 +221,7 @@
     <div id="operating-tz"></div>
 
     <h2>Privacy</h2>
-    <p class="hint privacy-settings">OAuth tokens are held only for the current browser session. Preferences and calendar selections stay on this device. Removing an account also removes its saved calendar selections.</p>
+    <p class="hint privacy-settings">OAuth tokens are held only for the current browser session. Today’s event titles, times, and descriptions are displayed in memory and are not saved. Preferences and calendar selections stay on this device.</p>
   </div>
 
   <script type="module" src="popup.js"></script>

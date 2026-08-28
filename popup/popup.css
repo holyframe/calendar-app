@@ -14,8 +14,14 @@
   box-sizing: border-box;
 }
 
+html,
 body {
-  width: 400px;
+  min-height: 100%;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
   margin: 0;
   font-family: 'Segoe UI', Roboto, Arial, sans-serif;
   font-size: 13px;
@@ -28,6 +34,9 @@ body {
 }
 
 .view {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
   padding: 12px 14px 16px;
 }
 
@@ -209,6 +218,421 @@ textarea:focus-visible {
 .tab.active {
   color: var(--blue);
   border-bottom-color: var(--blue);
+}
+
+/* ---------- Today ---------- */
+
+.today-card {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--blue-light);
+}
+
+.today-card-date {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.today-card-date span {
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.today-card-date strong {
+  font-size: 15px;
+}
+
+.today-day-nav {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.today-day-nav:hover {
+  background: rgb(26 115 232 / 10%);
+  color: var(--blue);
+}
+
+.today-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+
+.today-section-header h2,
+.today-availability-title {
+  margin: 0;
+}
+
+.today-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+#today-schedule-zone {
+  color: var(--text-dim);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.timeline-range {
+  margin: 7px 0 9px;
+}
+
+.timeline-range-header,
+.timeline-range-scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.timeline-range-header output {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.timeline-range-bar {
+  --range-start: 33.333%;
+  --range-end: 83.333%;
+  position: relative;
+  height: 25px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.timeline-range-track {
+  position: absolute;
+  top: 10px;
+  right: 8px;
+  left: 8px;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--border) 0 var(--range-start),
+    var(--blue) var(--range-start) var(--range-end),
+    var(--border) var(--range-end) 100%
+  );
+}
+
+.timeline-range-bar input[type="range"] {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 25px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.timeline-range-bar input[type="range"]:last-of-type {
+  z-index: 3;
+}
+
+.timeline-range-bar input[type="range"]:focus-visible {
+  z-index: 4;
+  outline: none;
+}
+
+.timeline-range-bar input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+  background: transparent;
+}
+
+.timeline-range-bar input[type="range"]::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -5.5px;
+  appearance: none;
+  border: 2px solid var(--blue);
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 1px 3px rgb(60 64 67 / 25%);
+  cursor: ew-resize;
+  pointer-events: auto;
+}
+
+.timeline-range-bar input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--blue-light);
+}
+
+.timeline-range-scale {
+  padding: 0 1px;
+  font-size: 9px;
+}
+
+.schedule-list > .loading,
+.schedule-list > .empty,
+.schedule-list > .error {
+  padding: 12px 0;
+}
+
+.timeline-all-day {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 5px;
+  margin: 5px 0;
+  padding: 5px 4px 5px 0;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #f8f9fa;
+}
+
+.timeline-all-day-label {
+  padding-top: 3px;
+  text-align: right;
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.timeline-all-day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 78px;
+  overflow-y: auto;
+}
+
+.timeline-all-day-event {
+  width: 100%;
+  padding: 3px 5px;
+  overflow: hidden;
+  border: 0;
+  border-left: 3px solid var(--event-color);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--event-color) 28%, white);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-all-day-event:hover,
+.timeline-all-day-event:focus-visible {
+  background: color-mix(in srgb, var(--event-color) 38%, white);
+}
+
+.timeline-scroll {
+  height: clamp(300px, 48vh, 560px);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  overscroll-behavior: contain;
+}
+
+.timeline-scroll:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.timeline-canvas {
+  position: relative;
+  min-width: 0;
+}
+
+.timeline-hour {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  pointer-events: none;
+}
+
+.timeline-hour-label {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: 50px;
+  padding-right: 5px;
+  text-align: right;
+  color: var(--text-dim);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.timeline-hour-line {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 54px;
+  border-top: 1px solid var(--border);
+}
+
+.timeline-events {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  bottom: 0;
+  left: 58px;
+}
+
+.timeline-event {
+  position: absolute;
+  z-index: 2;
+  min-width: 0;
+  padding: 2px 4px;
+  overflow: hidden;
+  border: 0;
+  border-left: 3px solid var(--event-color);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--event-color) 38%, white);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+}
+
+.timeline-event:hover {
+  z-index: 3;
+  box-shadow: 0 1px 4px rgb(60 64 67 / 35%);
+}
+
+.timeline-event-title,
+.timeline-event-time {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-event-title {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.timeline-event-time {
+  font-size: 10px;
+}
+
+.timeline-now {
+  position: absolute;
+  right: 0;
+  left: 52px;
+  z-index: 4;
+  border-top: 2px solid #d93025;
+  pointer-events: none;
+}
+
+.timeline-now::before {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d93025;
+  content: '';
+}
+
+.today-event-details {
+  margin: 8px 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--blue);
+  border-radius: 7px;
+  background: #f8f9fa;
+}
+
+.today-event-details:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.today-event-details-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.today-event-details h3 {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+#today-event-details-meta {
+  margin: 2px 0 0;
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.today-event-details-close {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 18px;
+  line-height: 22px;
+}
+
+.today-event-details-close:hover {
+  background: var(--border);
+}
+
+.today-event-description {
+  margin-top: 9px;
+}
+
+.today-event-description strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text-dim);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#today-event-details-description {
+  max-height: 140px;
+  margin: 0;
+  overflow-y: auto;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+#today-event-details-description.empty-description {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.today-availability-title {
+  margin-top: 14px;
 }
 
 /* ---------- Calendar grid ---------- */

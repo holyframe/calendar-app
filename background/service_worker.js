@@ -2,11 +2,15 @@
 //
 // Security boundaries:
 // - Access tokens live only in chrome.storage.session (memory-backed).
-// - Tokens are never returned to popup code.
-// - Calendar queries use FreeBusy, so event titles/descriptions never arrive.
+// - Tokens are never returned to side-panel code.
+// - Schedule queries whitelist only event titles, descriptions, and times.
 // - Account and preference records stay in device-local extension storage.
 
 import { groupWindowsForQueries } from '../utils/query_ranges.js';
+import {
+  dedupeAndSortScheduleEvents,
+  normalizeScheduleEvent,
+} from '../utils/schedule.js';
 
 const AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
 const USERINFO_ENDPOINT = 'https://www.googleapis.com/oauth2/v2/userinfo';
@@ -19,6 +23,7 @@ const CALENDAR_PREFIX = 'calChecked::';
 const MAX_WINDOWS = 92;
 const MAX_WINDOW_MS = 26 * 60 * 60 * 1000;
 const FREEBUSY_BATCH_SIZE = 50;
+const EVENT_LIST_CONCURRENCY = 5;
 
 class PublicError extends Error {
   constructor(code, userMessage) {
@@ -49,6 +54,10 @@ configureStorageAccess().catch(() => {
   // Older Chromium versions may not support setAccessLevel. There are no
   // content scripts in this extension, so storage still remains internal.
 });
+
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error('Could not configure the side panel.', error));
 
 function getOAuthConfig() {
   return chrome.runtime.getManifest().oauth2 || {};
@@ -456,6 +465,37 @@ async function fetchFreeBusy(token, calendarIds, range, timeZone) {
   return busy;
 }
 
+async function fetchCalendarEvents(token, email, calendar, range, timeZone) {
+  const events = [];
+  let pageToken;
+
+  do {
+    const calendarId = encodeURIComponent(calendar.id);
+    const url = new URL(`${CALENDAR_BASE}/calendars/${calendarId}/events`);
+    url.searchParams.set('timeMin', new Date(range.start).toISOString());
+    url.searchParams.set('timeMax', new Date(range.end).toISOString());
+    url.searchParams.set('timeZone', timeZone);
+    url.searchParams.set('singleEvents', 'true');
+    url.searchParams.set('orderBy', 'startTime');
+    url.searchParams.set('showDeleted', 'false');
+    url.searchParams.set('maxResults', '250');
+    url.searchParams.set(
+      'fields',
+      'items(id,iCalUID,summary,description,start(date,dateTime),end(date,dateTime)),nextPageToken'
+    );
+    if (pageToken) url.searchParams.set('pageToken', pageToken);
+
+    const data = await apiRequest(token, url);
+    for (const event of data.items || []) {
+      const normalized = normalizeScheduleEvent(event, calendar, email);
+      if (normalized) events.push(normalized);
+    }
+    pageToken = data.nextPageToken;
+  } while (pageToken);
+
+  return events;
+}
+
 async function fetchAccountBusy(email, ranges, timeZone) {
   return withAccountToken(email, async (token) => {
     const { checked } = await getCheckedCalendars(token, email);
@@ -467,6 +507,31 @@ async function fetchAccountBusy(email, ranges, timeZone) {
       busy.push(...(await fetchFreeBusy(token, calendarIds, range, timeZone)));
     }
     return { busy, count: checked.length };
+  });
+}
+
+async function fetchAccountSchedule(email, range, timeZone) {
+  return withAccountToken(email, async (token) => {
+    const calendars = await fetchCalendarList(token);
+    const readable = calendars.filter((calendar) =>
+      ['reader', 'writer', 'owner'].includes(calendar.accessRole)
+    );
+    const events = [];
+
+    for (const batch of chunk(readable, EVENT_LIST_CONCURRENCY)) {
+      const results = await Promise.all(
+        batch.map((calendar) =>
+          fetchCalendarEvents(token, email, calendar, range, timeZone)
+        )
+      );
+      events.push(...results.flat());
+    }
+
+    return {
+      events,
+      calendarCount: calendars.length,
+      readableCount: readable.length,
+    };
   });
 }
 
@@ -498,6 +563,48 @@ async function handleGetBusy({ windows, timeZone }) {
   }
 }
 
+async function handleGetTodaySchedule({ window, timeZone }) {
+  const [range] = normalizeWindows([window]);
+  if (typeof timeZone !== 'string' || timeZone.length > 100) {
+    throw new PublicError('INVALID_TIMEZONE', 'A valid timezone is required.');
+  }
+
+  const accounts = await getAccounts();
+  if (accounts.length === 0) {
+    throw new PublicError('NO_ACCOUNTS', 'Add at least one Google account first.');
+  }
+
+  try {
+    const results = await Promise.all(
+      accounts.map((email) => fetchAccountSchedule(email, range, timeZone))
+    );
+    return {
+      ok: true,
+      events: dedupeAndSortScheduleEvents(
+        results.flatMap((result) => result.events)
+      ),
+      calendarCount: results.reduce(
+        (total, result) => total + result.calendarCount,
+        0
+      ),
+      readableCount: results.reduce(
+        (total, result) => total + result.readableCount,
+        0
+      ),
+    };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 403) {
+      throw new PublicError(
+        'EVENT_SCOPE_REQUIRED',
+        'Google denied event access. Add the read-only event scope in Google Cloud, then use + Add Google account in Settings to reconnect each account.'
+      );
+    }
+    const message = error.userMessage || userMessageForApiError(error);
+    if (message) throw new PublicError(error.code || 'CALENDAR_ERROR', message);
+    throw error;
+  }
+}
+
 const handlers = {
   SIGN_IN: handleAddAccount,
   ADD_ACCOUNT: handleAddAccount,
@@ -506,6 +613,7 @@ const handlers = {
   GET_AUTH: handleGetAuth,
   LIST_CALENDARS: handleListCalendars,
   GET_BUSY: handleGetBusy,
+  GET_TODAY_SCHEDULE: handleGetTodaySchedule,
 };
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

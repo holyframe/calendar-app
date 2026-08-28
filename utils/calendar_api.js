@@ -38,3 +38,15 @@ export async function fetchAllAccountsBusy(windows, timeZone) {
   };
 }
 
+export async function fetchTodaySchedule(window, timeZone) {
+  const response = await sendRuntimeMessage({
+    type: 'GET_TODAY_SCHEDULE',
+    window,
+    timeZone,
+  });
+  return {
+    events: response?.events || [],
+    calendarCount: response?.calendarCount || 0,
+    readableCount: response?.readableCount || 0,
+  };
+}
