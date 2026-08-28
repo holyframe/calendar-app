@@ -11,7 +11,6 @@ import {
 import {
   formatAvailability,
   resolveFormat,
-  FORMAT_PRESETS,
 } from '../utils/formatter.js';
 
 const $ = (id) => document.getElementById(id);
@@ -49,9 +48,9 @@ const PREF_DEFAULTS = {
   timeEnd: '17:00',
   minIntervalValue: 30,
   minIntervalUnit: 'minutes',
-  outputPreset: 'default',
-  outputTemplate: FORMAT_PRESETS.default.template,
-  outputTimeStyle: 'compact',
+  outputPreset: 'custom',
+  outputTemplate: '{Dow3} {Do} : {times}',
+  outputTimeStyle: 'spacedDots',
 };
 
 async function getPrefs() {

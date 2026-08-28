@@ -17,6 +17,19 @@ function isoDate(year, monthIndex, day) {
   return `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
+export function getTrailingMonthDates(year, monthIndex) {
+  const firstDow = new Date(year, monthIndex, 1).getDay();
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const trailingCount = (7 - ((firstDow + daysInMonth) % 7)) % 7;
+  const nextMonth = new Date(year, monthIndex + 1, 1);
+
+  return Array.from({ length: trailingCount }, (_, index) => ({
+    year: nextMonth.getFullYear(),
+    monthIndex: nextMonth.getMonth(),
+    day: index + 1,
+  }));
+}
+
 function parseTime(value) {
   const [hour, minute] = value.split(':').map(Number);
   return { hour, minute, minutes: hour * 60 + minute };
@@ -62,21 +75,15 @@ export function initPickDates(context) {
     const firstDow = new Date(viewYear, viewMonth, 1).getDay();
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
-    for (let index = 0; index < firstDow; index++) {
-      const blank = document.createElement('div');
-      blank.className = 'cal-cell blank';
-      blank.setAttribute('aria-hidden', 'true');
-      grid.appendChild(blank);
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const iso = isoDate(viewYear, viewMonth, day);
+    const appendDateCell = (year, monthIndex, day, { adjacent = false } = {}) => {
+      const iso = isoDate(year, monthIndex, day);
       const element = document.createElement('button');
       element.type = 'button';
       element.className = 'cal-cell';
+      if (adjacent) element.classList.add('adjacent');
       element.textContent = day;
       element.dataset.date = iso;
-      element.setAttribute('aria-label', `${MONTHS[viewMonth]} ${day}, ${viewYear}`);
+      element.setAttribute('aria-label', `${MONTHS[monthIndex]} ${day}, ${year}`);
 
       if (iso < todayIso) {
         element.classList.add('disabled');
@@ -86,6 +93,21 @@ export function initPickDates(context) {
       if (selected.has(iso)) element.classList.add('selected');
       element.setAttribute('aria-pressed', String(selected.has(iso)));
       grid.appendChild(element);
+    };
+
+    for (let index = 0; index < firstDow; index++) {
+      const blank = document.createElement('div');
+      blank.className = 'cal-cell blank';
+      blank.setAttribute('aria-hidden', 'true');
+      grid.appendChild(blank);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      appendDateCell(viewYear, viewMonth, day);
+    }
+
+    for (const date of getTrailingMonthDates(viewYear, viewMonth)) {
+      appendDateCell(date.year, date.monthIndex, date.day, { adjacent: true });
     }
   }
 
@@ -272,4 +294,3 @@ export function initPickDates(context) {
   render();
   updateCount();
 }
-

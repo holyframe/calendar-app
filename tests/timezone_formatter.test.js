@@ -51,6 +51,34 @@ test('formats availability in the requested timezone', () => {
   );
 });
 
+test('formats ordinal day tokens with the correct suffix', () => {
+  const cases = [
+    [1, '1st'],
+    [2, '2nd'],
+    [3, '3rd'],
+    [4, '4th'],
+    [11, '11th'],
+    [12, '12th'],
+    [13, '13th'],
+    [21, '21st'],
+    [22, '22nd'],
+    [23, '23rd'],
+    [31, '31st'],
+  ];
+
+  for (const [day, expected] of cases) {
+    const start = zonedTimeToUtc(2026, 7, day, 9, 0, 'America/New_York').getTime();
+    assert.equal(
+      formatAvailability(
+        [{ start, end: start + 60 * 60 * 1000 }],
+        'America/New_York',
+        { template: '{Do}', timeStyle: 'compact' }
+      ),
+      expected
+    );
+  }
+});
+
 test('formats spaced lowercase times with dot-separated minutes', () => {
   const firstStart = zonedTimeToUtc(2026, 7, 9, 13, 0, 'America/New_York').getTime();
   const secondStart = zonedTimeToUtc(2026, 7, 9, 16, 30, 'America/New_York').getTime();

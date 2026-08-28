@@ -258,6 +258,10 @@ textarea:focus-visible {
   cursor: default;
 }
 
+.cal-cell.adjacent {
+  color: var(--text-dim);
+}
+
 .cal-cell.disabled {
   color: var(--border);
   cursor: default;

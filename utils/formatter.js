@@ -3,7 +3,8 @@
 // A format is { template, timeStyle }. The template is applied once per
 // date line, with these tokens:
 //   {Dow} Thursday   {Dow3} Thu     {Month} July   {Mon3} Jul
-//   {M} 7   {MM} 07   {D} 9   {DD} 09   {YYYY} 2026   {YY} 26
+//   {M} 7   {MM} 07   {D} 9   {DD} 09   {Do} 9th
+//   {YYYY} 2026   {YY} 26
 //   {times} the free time ranges, comma-separated
 //   {tz} timezone abbreviation at that date (EDT, GMT+9, ...)
 //
@@ -66,6 +67,12 @@ export function resolveFormat(prefs) {
 }
 
 const pad = (n) => String(n).padStart(2, '0');
+const ordinal = (n) => {
+  const lastTwo = n % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return String(n) + 'th';
+
+  return String(n) + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
+};
 const meridiem = (p) => (p.hour < 12 ? 'am' : 'pm');
 const hour12 = (p) => p.hour % 12 || 12;
 const timeCompact = (p) => (p.minute ? `${hour12(p)}:${pad(p.minute)}` : `${hour12(p)}`);
@@ -157,6 +164,7 @@ export function formatAvailability(intervals, tz, format = FORMAT_PRESETS.defaul
         MM: pad(sp.month),
         D: sp.day,
         DD: pad(sp.day),
+        Do: ordinal(sp.day),
         YYYY: sp.year,
         YY: String(sp.year).slice(-2),
         times: ranges.join(', '),

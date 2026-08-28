@@ -35,6 +35,14 @@ test('manifest-referenced extension assets exist', async () => {
   await Promise.all([...new Set(paths)].map((path) => access(new URL(path, project))));
 });
 
+test('fresh installs default to the custom ordinal output format', async () => {
+  const source = await readFile(new URL('popup/popup.js', project), 'utf8');
+
+  assert.match(source, /outputPreset:\s*'custom'/);
+  assert.match(source, /outputTemplate:\s*'\{Dow3\} \{Do\} : \{times\}'/);
+  assert.match(source, /outputTimeStyle:\s*'spacedDots'/);
+});
+
 test('runtime code has no inherited brand, broad scope, sync storage, or Events endpoint', async () => {
   const paths = [
     'manifest.json',
@@ -56,4 +64,3 @@ test('runtime code has no inherited brand, broad scope, sync storage, or Events 
   assert.doesNotMatch(runtime, /\/auth\/calendar\.readonly/);
   assert.doesNotMatch(runtime, /\/calendars\/[^\s]+\/events/);
 });
-
