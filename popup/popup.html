@@ -65,9 +65,8 @@
         </div>
         <button id="today-refresh" class="link-button" type="button">Refresh</button>
       </div>
-      <div class="timeline-range" role="group" aria-labelledby="today-view-range-label">
+      <div class="timeline-range" role="group" aria-label="Visible hours">
         <div class="timeline-range-header">
-          <span id="today-view-range-label">Visible hours</span>
           <output id="today-view-range-output" for="today-view-start today-view-end">8 AM – 8 PM</output>
         </div>
         <div id="today-view-range-bar" class="timeline-range-bar">
@@ -152,6 +151,7 @@
 
     <section id="output" class="hidden" aria-live="polite">
       <div id="tz-line">Times displayed in <b id="tz-name"></b> time zone</div>
+      <p id="output-edit-hint" class="hint hidden">You can edit this text before copying.</p>
       <textarea id="output-text" readonly rows="6" aria-label="Formatted availability"></textarea>
       <div id="no-avail" class="empty hidden">No availability found in this window.</div>
       <div class="output-actions">

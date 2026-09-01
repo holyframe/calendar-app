@@ -79,6 +79,14 @@ test('Today preserves its grid while schedule data refreshes', async () => {
   assert.match(source, /scheduleCache\.get\(viewKey\)/);
 });
 
+test('Pick Dates makes the availability text editable', async () => {
+  const source = await readFile(new URL('popup/popup.js', project), 'utf8');
+
+  assert.match(source, /const outputIsEditable = selected === 'pick'/);
+  assert.match(source, /outputText\.readOnly = !outputIsEditable/);
+  assert.match(source, /output-edit-hint/);
+});
+
 test('runtime code has no inherited brand, broad scope, or sync storage', async () => {
   const paths = [
     'manifest.json',

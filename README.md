@@ -103,7 +103,7 @@ Every additional Google account must be included as a test user while the projec
 
 - Click the extension’s toolbar icon to open its global side panel. The panel stays open while you switch tabs in the same Chrome window.
 - **Today:** use the date-card arrows to move one day at a time, view events from every readable calendar in your connected accounts using an adjustable whole-hour range bar (8am–8pm by default), click a meeting to read its description, then find free intervals for the displayed date in your configured timezone. Recently viewed schedules stay in a small memory-only cache while the side panel remains open; an uncached date, timezone, or hour range starts with a blank grid.
-- **Pick Dates:** select up to 31 individual dates, choose a time window, and find all free intervals.
+- **Pick Dates:** select up to 31 individual dates, choose a time window, find all free intervals, and edit the formatted availability text before copying it.
 - **Date Range:** scan up to 92 days and filter out intervals shorter than your minimum duration.
 - **Settings → Accounts:** add or remove Google accounts.
 - **Settings → Calendars:** choose which calendars count as busy in availability results. These selections do not filter the Today schedule.

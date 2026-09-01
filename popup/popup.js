@@ -175,6 +175,16 @@ function initOutput(initialTimeZone) {
 function selectTab(name) {
   const tabNames = ['today', 'pick', 'range'];
   const selected = tabNames.includes(name) ? name : 'pick';
+  const outputText = $('output-text');
+  const outputIsEditable = selected === 'pick';
+  outputText.readOnly = !outputIsEditable;
+  outputText.setAttribute(
+    'aria-label',
+    outputIsEditable
+      ? 'Editable formatted availability'
+      : 'Formatted availability'
+  );
+  $('output-edit-hint').classList.toggle('hidden', !outputIsEditable);
   for (const tab of document.querySelectorAll('.tab')) {
     const active = tab.dataset.tab === selected;
     tab.classList.toggle('active', active);

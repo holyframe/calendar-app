@@ -778,6 +778,16 @@ select {
   background: #f8f9fa;
 }
 
+#output-text:not([readonly]) {
+  border-color: #a8c7fa;
+  background: var(--bg);
+}
+
+#output-edit-hint {
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
 .output-actions {
   display: flex;
   align-items: center;
